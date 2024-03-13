@@ -641,6 +641,8 @@ impl OsuRef {
         let bytes = BodyBytes::from(body);
         let url = "https://osu.ppy.sh/oauth/token";
 
+        dbg!(&bytes.0);
+
         let req = HyperRequest::builder()
             .method(Method::POST)
             .uri(url)
@@ -650,10 +652,15 @@ impl OsuRef {
             .header(CONTENT_LENGTH, bytes.len())
             .body(bytes)?;
 
-        let resp = self.send_request(req).await?;
-        let bytes = self.handle_status(resp).await?;
+        dbg!(&req.body().0);
+        dbg!(&req.headers());
 
-        parse_bytes(bytes)
+        let mut resp = self.send_request(req).await;
+        dbg!(&resp);
+        let bytes = self.handle_status(resp?).await;
+        dbg!(&bytes);
+
+        parse_bytes(bytes?)
     }
 
     async fn request<T: DeserializeOwned>(&self, req: Request) -> OsuResult<T> {
